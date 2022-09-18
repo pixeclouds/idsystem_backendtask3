@@ -16,7 +16,7 @@ async function validateData(data) {
         };
     } catch (err) {
         err = err.details[0].message
-        
+        console.log(err)
         return {
             valid: false,
             err

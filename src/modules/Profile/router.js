@@ -4,7 +4,7 @@ const { createNewProfile, fetchAllProfiles, deleteAProfile, verifyProfile } = re
 
 router.post("/profile", createNewProfile);
 
-router.get("/profiles", fetchAllProfiles );
+router.get("/profiles/:page", fetchAllProfiles );
 
 router.delete("/profile/:_id", deleteAProfile);
 

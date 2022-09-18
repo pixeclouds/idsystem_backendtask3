@@ -1,8 +1,5 @@
-const Profile = require('./model');
-const validateData = require("./../utils/validate");
-const { createProfile, fetchProfiles, deleteProfile, verifyUserProfile } = require("./processes")
-const QRCode = require("qrcode")
-
+const validateData = require("../../utils/validate");
+const { createProfile, fetchProfiles, deleteProfile, verifyUserProfile, generateQRCode } = require("./processes")
 
 async function createNewProfile (req, res) {
     try {
@@ -12,8 +9,9 @@ async function createNewProfile (req, res) {
         if(!result.valid){
             throw  result.err
         };
-        //create new profile 
+        //create new profile and  generate qrcode
         let newProfile = await createProfile(details);
+        await generateQRCode(newProfile)
         res.json(newProfile);
 
     } catch (err) {
@@ -23,8 +21,13 @@ async function createNewProfile (req, res) {
 };
 async function fetchAllProfiles (req, res){
     try {
-        let profiles = await fetchProfiles();
-        res.json(profiles)
+        //curren to page to  fetch
+        let page = req.params.page;
+        let { total, allProfiles } = await fetchProfiles(page);
+        res.json({
+            "Message": `Displaying page ${page} of ${total} total pages.`,
+            allProfiles
+        })
     } catch (err) {
         res.json({Error: err });
     }
@@ -55,4 +58,5 @@ async function verifyProfile(req, res){
     };
 };
 
-module.exports = { createNewProfile, fetchAllProfiles, deleteAProfile, verifyProfile}
+
+module.exports = { createNewProfile, fetchAllProfiles, deleteAProfile, verifyProfile    }
