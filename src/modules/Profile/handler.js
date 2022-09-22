@@ -1,5 +1,7 @@
 const validateData = require("../../utils/validate");
-const { createProfile, fetchProfiles, deleteProfile, verifyUserProfile, generateQRCode } = require("./processes")
+const encrypt = require("../../utils/encrypt")
+const { createProfile, fetchProfiles, deleteProfile, generateQRCode, searchForProfile } = require("./processes");
+const Profile = require("./model");
 
 async function createNewProfile (req, res) {
     try {
@@ -11,7 +13,9 @@ async function createNewProfile (req, res) {
         };
         //create new profile and  generate qrcode
         let newProfile = await createProfile(details);
-        await generateQRCode(newProfile)
+        let encryptedData  = encrypt(newProfile)
+        await generateQRCode(encryptedData)
+
         res.json(newProfile);
 
     } catch (err) {
@@ -19,11 +23,14 @@ async function createNewProfile (req, res) {
     };
     
 };
+
+//implements pagition on fetching all profiles
 async function fetchAllProfiles (req, res){
     try {
-        //curren to page to  fetch
-        let page = req.params.page;
-        let { total, allProfiles } = await fetchProfiles(page);
+        let page = req.query.page;  //current page to fetch 
+        let pageSize = req.query.pageSize; //number of documents per page
+        console.log(page, pageSize)
+        let { total, allProfiles } = await fetchProfiles(page,  pageSize);
         res.json({
             "Message": `Displaying page ${page} of ${total} total pages.`,
             allProfiles
@@ -43,20 +50,19 @@ async function deleteAProfile(req, res) {
     }
 };
 
-async function verifyProfile(req, res){
+
+async function searchProfile(req, res){
     try {
-        let details = req.body;
-        let verified =  await verifyUserProfile(details);
-        //check if empty result is returned
-        if (!verified.length){
-            err =  "Profile verification failed"
-            throw err;
-        };
-        res.json({Mssg: "Profile verification successful"});
+        let value = req.query.firstName;
+        let result = await searchForProfile(value);
+        console.log(result)
+        if(result==Error){
+            throw err
+        }
+        res.json(result);
     } catch (err) {
-        res.json({Error: err});
-    };
-};
+        res.json({Error: "Profile not found"});
+    }
+}
 
-
-module.exports = { createNewProfile, fetchAllProfiles, deleteAProfile, verifyProfile    }
+module.exports = { createNewProfile, fetchAllProfiles, deleteAProfile, searchProfile  }

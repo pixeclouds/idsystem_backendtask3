@@ -22,15 +22,15 @@ async function generateQRCode(details){
     })
 }
 
-async function fetchProfiles (page){
-    page = page - 1
+async function fetchProfiles (page, pageSize){
+    page = page - 1 //zero indexing of array
     let allProfiles =  await Profile.find()
                 .sort({"firstName": "ASC"})
-                .limit(10)
-                .skip(10 * page);
-    //get the total pages at 10 documents per page
-    let total = Math.round((await Profile.count())/10);
-    console.log(total)
+                .limit(pageSize)
+                .skip(pageSize * page);
+    //get the total pages for the given number of 
+    // documents (pagesize) per page
+    let total = Math.round((await Profile.count())/pageSize);
     return {allProfiles, total};
 };
 
@@ -39,10 +39,16 @@ async function deleteProfile(_id){
     await Profile.deleteOne({ _id });
 };
 
-async function verifyUserProfile(details) {
-    let  { firstName, lastName } = details;
-    let verifiedProfile = await Profile.find({ firstName, lastName  });
-    return verifiedProfile;
-};
 
-module.exports = { deleteProfile, createProfile, fetchProfiles, verifyUserProfile, generateQRCode }
+async function searchForProfile (value) {
+    let exists = await chechIfDocumentExist({firstName: value});
+    if(exists){
+        result = await Profile.find({firstName: value});
+        return result;
+    }else{
+        return Error
+    }
+    
+}
+
+module.exports = { deleteProfile, createProfile, fetchProfiles, generateQRCode, searchForProfile }

@@ -1,13 +1,13 @@
 const router = require("express").Router()
-const { createNewProfile, fetchAllProfiles, deleteAProfile, verifyProfile } = require("./handler")
+const { createNewProfile, fetchAllProfiles, deleteAProfile, searchProfile } = require("./handler")
 
 
 router.post("/profile", createNewProfile);
 
-router.get("/profiles/:page", fetchAllProfiles );
+router.get("/profiles", fetchAllProfiles );
 
 router.delete("/profile/:_id", deleteAProfile);
 
-router.post("/verify", verifyProfile);
+router.get("/search", searchProfile);
 
 module.exports = router;

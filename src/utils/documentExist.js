@@ -1,7 +1,9 @@
-async function chechIfDocumentExist(Model, query){
-    let document =  await Model.findOne({...query });
+const Profile = require("../modules/Profile/model");
+
+async function chechIfDocumentExist(query){
+    let document =  await Profile.findOne({...query });
     if (!document || !document._id){
-        throw new Error("Document not found");
+        return false;
     };
     return true;
 };
